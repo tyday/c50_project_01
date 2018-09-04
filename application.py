@@ -13,8 +13,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.DATABASE_URL
 app.debug = True
 # Check for environment variable
-if not os.getenv("DATABASE_URL"):
-    raise RuntimeError("DATABASE_URL is not set")
+# if not os.getenv("DATABASE_URL"):
+#     raise RuntimeError("DATABASE_URL is not set")
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -102,5 +102,54 @@ def register_auth():
             return redirect(url_for('login'))
         flash(error)
     return render_template('register.html', error = error)
+
+# Search results will be split up
+# /search/results will be for more than one book found.
+# may limit it to top ten or something
+# /search/isdn will be for individual books
+
+@app.route('/search/results', methods = ['GET','POST'])
+def search_results():
+    if request.method == 'POST' or request.method == 'GET':
+        error = None
+        search_type = None
+        search_term = request.form['search_term']
+        search_type = request.form['search_type']
+        search_term = "%" + search_term + "%"
+        if search_type == 'title':
+            results = db.execute(
+                "SELECT * FROM books WHERE title iLIKE :param2 LIMIT 10",
+                ({"param1": search_type, "param2":search_term})
+            )
+        elif search_type == 'author':
+            results = db.execute(
+                "SELECT * FROM books WHERE author iLIKE :param2 LIMIT 10",
+                ({"param1": search_type, "param2":search_term})
+            )
+        # elif search_type == 'isbn':
+        #     results = db.execute(
+        #         "SELECT * FROM books WHERE isbn iLIKE :param2 LIMIT 10",
+        #         ({"param1": search_type, "param2":search_term})
+        #     )
+        else:
+            results = db.execute(
+                "SELECT * FROM books WHERE isbn iLIKE :param2 LIMIT 10",
+                ({"param1": search_type, "param2":search_term})
+            )
+        resultstring ="Found no results"
+        book_list = []
+        for row in results:
+            book_list.append(row)
+        if len(book_list) == 0:
+            resultstring = "Found no results"
+        elif len(book_list) == 1:
+            resultstring = str(book_list[0])
+        else:
+            resultstring = str(book_list)
+        return resultstring
+
+
+
 if __name__== '__main__':
+
     app.run()

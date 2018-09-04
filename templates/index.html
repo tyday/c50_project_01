@@ -18,5 +18,15 @@
             
         </ul>
     </nav>
+    <main>
+        <form action="/search/results" method="POST">
+            <h2>Book search tool</h2>
+            <label for="searchbox">Search for:<input type="text" name="search_term"></label><br>
+            <input type="radio" name="search_type" value="title" checked="checked">Title
+            <input type="radio" name="search_type" value="isbn">ISBN
+            <input type="radio" name="search_type" value="author">Author<br>
+            <input type="submit" value="Search">
+        </form>
+    </main>
 </body>
 </html>
