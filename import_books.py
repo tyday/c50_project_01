@@ -9,9 +9,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-db_string = config.db_key
+db_string = config.DATABASE_URL #config.db_key
 
 db = create_engine(db_string)
+print('connected')
 base = declarative_base()
 
 class Book(base):
@@ -33,7 +34,7 @@ with open('books.csv', newline='') as csvfile:
     bookreader = csv.reader(csvfile)
     for row in bookreader:
         if i != 0:
-            # print(row)
+            print(i,row)
             book_entry = Book(isbn=row[0], title=row[1], author=row[2], year=row[3])
             session.add(book_entry)
             session.commit()

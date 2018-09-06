@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-db_string = config.db_key
+db_string = config.DATABASE_URL
 
 db = create_engine(db_string)
 base = declarative_base()

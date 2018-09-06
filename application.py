@@ -145,9 +145,31 @@ def search_results():
         elif len(book_list) == 1:
             resultstring = str(book_list[0])
         else:
+            return render_template('show_book_multi.html', user='placeholder', books=book_list)
             resultstring = str(book_list)
         return resultstring
 
+@app.route('/book/<isbn>')
+def show_book(isbn):
+    result = db.execute(
+        "SELECT * FROM books WHERE isbn=:param1",
+        ({"param1":isbn})
+    )
+
+    if 'username' in session:
+        user=session['username']
+    else:
+        user=None
+    # return render_template('index.html', user=user)
+    row = result.fetchone()
+    if row is None:
+        return 'nothing here'
+    else:
+        book = {"title":row.title,"author":row.author,"isbn":row.isbn,"year":row.year}
+        return render_template('show_book.html', user=user, book=book)
+    # if row is not "":
+    #     return 'found book'
+    # else: return 'didnt find book'
 
 
 if __name__== '__main__':

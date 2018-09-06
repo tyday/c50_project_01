@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CS50 Project One</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            {% if user %}
+            <li>Welcome {{ user }}!</li>
+            <a href="{{ url_for('logout') }}"><li>Log out</li></a>
+            {% else %}
+            <a href="{{ url_for('login') }}"><li>Log In</li></a>
+            <a href="{{ url_for('register')  }}"><li>Create User</li></a>            {% endif %}
+            
+        </ul>
+    </nav>
+    <main>
+        <ul>
+            {% for book in books %}
+            <ul>
+            <li>Book Title: {{ book.title }}</li>
+            <li>Author: {{ book.author }}</li>
+            <li>ISBN: {{ book.isbn }}</li>
+            <li>Year: {{ book.year }}</li>
+            </ul><br>
+            {% endfor %}
+        </ul>
+        <div>
+            {% if user %}
+            <p>Review book</p>
+            {% else %}
+            <p>you must be logged in to review a book</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
