@@ -111,6 +111,8 @@ def register_auth():
 @app.route('/search/results', methods = ['GET','POST'])
 def search_results():
     if request.method == 'POST' or request.method == 'GET':
+        if 'username' in session:
+            user=session['username']
         error = None
         search_type = None
         search_term = request.form['search_term']
@@ -143,9 +145,10 @@ def search_results():
         if len(book_list) == 0:
             resultstring = "Found no results"
         elif len(book_list) == 1:
-            resultstring = str(book_list[0])
+            return redirect(url_for('show_book', isbn = book_list[0][0]))
+            # resultstring = str(book_list[0])
         else:
-            return render_template('show_book_multi.html', user='placeholder', books=book_list)
+            return render_template('show_book_multi.html', user=user, books=book_list)
             resultstring = str(book_list)
         return resultstring
 
@@ -155,18 +158,50 @@ def show_book(isbn):
         "SELECT * FROM books WHERE isbn=:param1",
         ({"param1":isbn})
     )
-
+    reviews = db.execute(
+        "SELECT reviews.score, reviews.review, users.username "
+        "FROM reviews "
+        "INNER JOIN books ON reviews.isbn = books.isbn "
+        "INNER JOIN users ON reviews.userid = users.id "
+        "WHERE reviews.isbn=:param1",
+        ({"param1":isbn})
+    )
+    ret_reviews = []
+    # for review in reviews:
+    #     print(str(review))
+    #     ret_reviews.append({"score":review.score,"review":review.review})
+    # print(review.username,session['username'])
+    review_count = 0
+    score_total = 0
+    user_review = None
     if 'username' in session:
         user=session['username']
+        for review in reviews:
+            if review.username == session['username']:
+                user_review = {"score":review.score, "review":review.review}
+                review_count += 1
+                score_total += review.score
+                print(user_review)
+            else:
+                score_total+= review.score
+                review_count += 1
+                ret_reviews.append({"score":review.score,"review":review.review})
     else:
         user=None
+    # print(f'Total reviews {review_count}, Average score: {score_total/review_count}')
     # return render_template('index.html', user=user)
     row = result.fetchone()
     if row is None:
         return 'nothing here'
     else:
         book = {"title":row.title,"author":row.author,"isbn":row.isbn,"year":row.year}
-        return render_template('show_book.html', user=user, book=book)
+        if review_count > 0:
+            ret_scores = {"count":review_count,"average":(score_total/review_count)}
+            reviews_list = {"user_review":user_review,"all_reviews":ret_reviews}
+        else:
+            ret_scores = None
+            reviews_list = None
+        return render_template('show_book.html', user=user, book=book, reviews=reviews_list,scores=ret_scores)
     # if row is not "":
     #     return 'found book'
     # else: return 'didnt find book'

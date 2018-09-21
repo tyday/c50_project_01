@@ -9,6 +9,7 @@
 <body>
     <nav>
         <ul>
+            <a href="{{url_for('index') }}"><li>Home</li></a>
             {% if user %}
             <li>Welcome {{ user }}!</li>
             <a href="{{ url_for('logout') }}"><li>Log out</li></a>
@@ -22,20 +23,20 @@
         <ul>
             {% for book in books %}
             <ul>
-            <li>Book Title: {{ book.title }}</li>
+            <a href="{{ url_for('show_book', isbn=book.isbn) }}"><li>Book Title: {{ book.title }}</li></a>
             <li>Author: {{ book.author }}</li>
             <li>ISBN: {{ book.isbn }}</li>
             <li>Year: {{ book.year }}</li>
             </ul><br>
             {% endfor %}
         </ul>
-        <div>
+        <!-- <div>
             {% if user %}
             <p>Review book</p>
             {% else %}
             <p>you must be logged in to review a book</p>
             {% endif %}
-        </div>
+        </div> -->
     </main>
 </body>
 </html>
