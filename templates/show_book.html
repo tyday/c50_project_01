@@ -28,8 +28,8 @@
         </ul>
         <div>
             {% if reviews %}
-            <p>Number of reviews: {{ scores.count }}.</p>
-            <p>Average review: {{ scores.average }}.</p>
+            <p>Number of reviews: {{ scores.count }}</p>
+            <p>Average review: {{ '{:.2}'.format(scores.average) }}</p>
             {% else %}
             <p>There have been no reviews of this book.</p>
             {% endif %}
@@ -39,16 +39,28 @@
                 {% if reviews.user_review %}
                 <p>user review test</p>
                 <p>{{ reviews.user_review }}</p>
-                <form action="" method="post">
+                <form action="/update_review" method="post">
                     <label for="review">Review:</label>
                     <!-- <input type="text" name="review" id="review" size="300" value="{{ reviews.user_review.review}}"> -->
                     <textarea name="review" id="review">{{ reviews.user_review.review}}</textarea><br>
                     <label for="score">Score</label>
                     <input type="number" name="score" id="score" value="{{  reviews.user_review.score  }}" min="1" max="5">
+                    <input type="hidden" name="review_id" value="{{ reviews.user_review.review_id }}">
+                    <input type="hidden" name="user_id" value="{{ reviews.user_review.user_id }}">
+                    <input type="hidden" name="isbn" value = "{{ reviews.user_review.isbn }}">
                     <input type="submit" value="Update">
                 </form>
                 {% else %}
                 <p>No user review</p>
+                <form action="/create_review" method="post">
+                    <label for="review">Review:</label>
+                    <textarea name="review" id="review" required></textarea><br>
+                    <label for="score">Score</label>
+                    <input type="number" name="score" id="score" min="1" max="5" required>
+                    <input type="hidden" name="user_id" value="{{ user_id }}">
+                    <input type="hidden" name="isbn" value = "{{ book.isbn }}">
+                    <input type="submit" value="Review">
+                </form>
                 {% endif %}
             <p>Review book</p>
             {% else %}

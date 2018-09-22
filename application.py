@@ -64,6 +64,7 @@ def login_auth():
         
         if error is None and password_check is True:
             session['username'] = username
+            session['user_id'] = selection.id
             return redirect(url_for('index'))
         print('line before flash', error)
         flash(error)
@@ -159,13 +160,14 @@ def show_book(isbn):
         ({"param1":isbn})
     )
     reviews = db.execute(
-        "SELECT reviews.score, reviews.review, users.username "
+        "SELECT * " #reviews.score, reviews.review, users.username
         "FROM reviews "
         "INNER JOIN books ON reviews.isbn = books.isbn "
-        "INNER JOIN users ON reviews.userid = users.id "
+        "INNER JOIN users ON reviews.user_id = users.id "
         "WHERE reviews.isbn=:param1",
         ({"param1":isbn})
     )
+    print(reviews)
     ret_reviews = []
     # for review in reviews:
     #     print(str(review))
@@ -178,11 +180,15 @@ def show_book(isbn):
         user=session['username']
         for review in reviews:
             if review.username == session['username']:
-                user_review = {"score":review.score, "review":review.review}
+                user_review = {"score":review.score, "review":review.review, "review_id": review.review_id,"user_id":review.user_id,"isbn":review.isbn}
+                print(user_review)
                 review_count += 1
                 score_total += review.score
                 print(user_review)
             else:
+                print('Not user:', )
+                user_review = {"score":review.score, "review":review.review, "review_id": review.review_id,"user_id":review.user_id,"isbn":review.isbn}
+                print('user_review')
                 score_total+= review.score
                 review_count += 1
                 ret_reviews.append({"score":review.score,"review":review.review})
@@ -201,10 +207,34 @@ def show_book(isbn):
         else:
             ret_scores = None
             reviews_list = None
-        return render_template('show_book.html', user=user, book=book, reviews=reviews_list,scores=ret_scores)
+        return render_template('show_book.html', user=user, user_id = session['user_id'], book=book, reviews=reviews_list,scores=ret_scores)
     # if row is not "":
     #     return 'found book'
     # else: return 'didnt find book'
+
+@app.route('/update_review', methods = ['GET','POST'])
+def update_review():
+    if request.method == 'POST':        
+        db.execute(
+            "UPDATE reviews set score = :param1, review = :param2 "
+            "WHERE review_id = :param3",
+            ({"param1":request.form['score'], "param2":request.form['review'], "param3":request.form['review_id']})
+        )
+        db.commit()
+    return redirect(url_for('show_book', isbn= request.form['isbn']))
+
+@app.route('/create_review', methods = ['GET','POST'])
+def create_review():
+    print(request.form)
+    id = session['user_id']
+    if request.method == 'POST':        
+        db.execute(
+            "INSERT INTO reviews (isbn, user_id, score, review) "
+            "VALUES (:isbn, :user_id, :score, :review)",
+            ({"isbn":request.form['isbn'], "user_id":id, "score":request.form['score'], "review":request.form['review']})
+        )
+        db.commit()
+    return redirect(url_for('show_book', isbn= request.form['isbn']))
 
 
 if __name__== '__main__':
