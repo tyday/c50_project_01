@@ -186,12 +186,11 @@ def show_book(isbn):
                 score_total += review.score
                 print(user_review)
             else:
-                print('Not user:', )
-                user_review = {"score":review.score, "review":review.review, "review_id": review.review_id,"user_id":review.user_id,"isbn":review.isbn}
-                print('user_review')
+                # user_review = {"score":review.score, "review":review.review, "review_id": review.review_id,"user_id":review.user_id,"isbn":review.isbn}
+                # print(user_review)
                 score_total+= review.score
                 review_count += 1
-                ret_reviews.append({"score":review.score,"review":review.review})
+                ret_reviews.append({"score":review.score,"review":review.review, "reviewer":review.username})
     else:
         user=None
     # print(f'Total reviews {review_count}, Average score: {score_total/review_count}')

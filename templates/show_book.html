@@ -34,7 +34,7 @@
             <p>There have been no reviews of this book.</p>
             {% endif %}
         </div>
-        <div>
+        <section class="user_review">
             {% if user %}
                 {% if reviews.user_review %}
                 <p>user review test</p>
@@ -62,11 +62,22 @@
                     <input type="submit" value="Review">
                 </form>
                 {% endif %}
-            <p>Review book</p>
             {% else %}
             <p>you must be logged in to review a book</p>
             {% endif %}
-        </div>
+        </section>
+        <section class="all_reviews">
+            {% if reviews %}
+            <p> Non-User Reviews</p>
+            {% for review in reviews.all_reviews %}
+            <ul>
+            <li>{{ review.reviewer }} -- name</li>
+            <li>{{ review.score }} -- score</li>
+            <li>{{ review.review }} -- review</li>
+            </ul>
+            {% endfor %}
+            {% endif %}
+        </section>
     </main>
 </body>
 </html>
